@@ -4,5 +4,5 @@
 
 ## License
 
-mankee is available under MIT. See LICENSE for more details.
+mankees is available under MIT. See LICENSE for more details.
 
