@@ -7,8 +7,6 @@ var path = require('path');
 var program = require('commander');
 var requireDir = require('require-dir');
 
-var mankee = require('../');
-
 
 main();
 
