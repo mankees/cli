@@ -46,6 +46,14 @@ function listMankees(mankees) {
     else console.error('No mankees found! :(');
 }
 
-function executeMankees(mankees, executables, silent) {
-    console.log('should execute mankees now');
+function executeMankees(mankees, names, silent) {
+    names.forEach(function(name) {
+        if(name in mankees) {
+            var mankee = mankees[name];
+
+            if(mankee.execute) mankee.execute();
+            else console.error('Mankee *' + name + '* is missing `execute`!');
+        }
+        else console.error('Mankee named *' + name + '* was not found!');
+    });
 }
