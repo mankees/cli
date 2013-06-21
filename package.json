@@ -1,5 +1,5 @@
 {
-    "name": "mankee",
+    "name": "mankees",
     "description": "mankee see, mankee do",
     "author": "Juho Vepsalainen <bebraw@gmail.com>",
     "version": "0.1.0",
@@ -9,24 +9,23 @@
         "require-dir": "0.1.0"
     },
 
-    "main": "./lib/mankee.js",
-    "bin": "./bin/mankee",
+    "bin": "./bin/mankees",
 
     "repository": {
         "type": "git",
-        "url": "https://bebraw@github.com/bebraw/mankee.git"
+        "url": "https://bebraw@github.com/bebraw/mankees.git"
     },
 
-    "homepage": "https://github.com/bebraw/mankee",
+    "homepage": "https://github.com/bebraw/mankees",
 
     "bugs": {
-        "url": "https://github.com/bebraw/mankee/issues"
+        "url": "https://github.com/bebraw/mankees/issues"
     },
 
     "keywords": ["terminal", "utility"],
 
     "licenses": [{
         "type": "MIT",
-        "url": "https://github.com/bebraw/mankee/blob/master/LICENSE"
+        "url": "https://github.com/bebraw/mankees/blob/master/LICENSE"
     }]
 }

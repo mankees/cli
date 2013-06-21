@@ -14,7 +14,7 @@ function main() {
     var mankeeDir = getMankeeDir();
     var args, mankees;
 
-    if(!fs.existsSync(mankeeDir)) return console.error('Create ' + mankeeDir + ' and fill it with joy!');
+    if(!fs.existsSync(mankeeDir)) return console.error('Create ' + mankeeDir + ' and fill it with joy and scripts that export `execute`!');
 
     mankees = requireDir(mankeeDir);
 
@@ -29,7 +29,7 @@ function main() {
 }
 
 function getMankeeDir() {
-    return path.join(getUserDir(), '.mankee');
+    return path.join(getUserDir(), '.mankees');
 }
 
 function getUserDir() {
@@ -45,6 +45,8 @@ function listMankees(mankees) {
 }
 
 function executeMankees(mankees, names, silent) {
+    if(!names.length) return console.log('No mankee or argument specified!');
+
     if(silent) {
         console.log = noop;
         console.warn = noop;
@@ -56,9 +58,9 @@ function executeMankees(mankees, names, silent) {
             var mankee = mankees[name];
 
             if(mankee.execute) mankee.execute();
-            else console.error('Mankee *' + name + '* is missing `execute`!');
+            else console.error('*' + name + '* mankee is missing `execute`!');
         }
-        else console.error('Mankee named *' + name + '* was not found!');
+        else console.error('*' + name + '* mankee was not found!');
     });
 }
 
