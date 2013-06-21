@@ -44,8 +44,10 @@ function listMankees(mankees) {
     else console.error('No mankees found! :(');
 }
 
-function executeMankees(mankees, names, silent) {
-    if(!names.length) return console.log('No mankee or argument specified!');
+function executeMankees(mankees, args, silent) {
+    if(!args.length) return console.log('No mankee selected!');
+
+    var name = args.shift();
 
     if(silent) {
         console.log = noop;
@@ -53,15 +55,13 @@ function executeMankees(mankees, names, silent) {
         console.error = noop;
     }
 
-    names.forEach(function(name) {
-        if(name in mankees) {
-            var mankee = mankees[name];
+    if(name in mankees) {
+        var mankee = mankees[name];
 
-            if(mankee.execute) mankee.execute();
-            else console.error('*' + name + '* mankee is missing `execute`!');
-        }
-        else console.error('*' + name + '* mankee was not found!');
-    });
+        if(mankee.execute) mankee.execute.apply(undefined, args);
+        else console.error('*' + name + '* mankee is missing `execute`!');
+    }
+    else console.error('*' + name + '* mankee was not found!');
 }
 
 function noop() {}
