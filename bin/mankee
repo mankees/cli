@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 var VERSION = require('../package.json').version;
 
+var fs = require('fs');
+var path = require('path');
+
 var program = require('commander');
+var requireDir = require('require-dir');
 
 var mankee = require('../');
 
@@ -9,20 +13,39 @@ var mankee = require('../');
 main();
 
 function main() {
-    var mankees = []; // TODO: parse mankee scripts from .mankee
-    var args;
+    var mankeeDir = getMankeeDir();
+    var args, mankees;
+
+    if(!fs.existsSync(mankeeDir)) return console.error('Create ' + mankeeDir + ' and fill it with joy!');
+
+    mankees = requireDir(mankeeDir);
 
     program.
         version(VERSION).
-        option('-l --list', 'list', listMankees.bind(undefined, mankees)).
+        option('-l --list', 'list').
         option('-s --silent', 'silent').
         parse(process.argv);
 
-    args = program.args;
+    if(program.list) listMankees(mankees);
+    else executeMankees(mankees, program.args, program.silent);
+}
 
-    // TODO: execute args in given order
+function getMankeeDir() {
+    return path.join(getUserDir(), '.mankee');
+}
+
+function getUserDir() {
+    // http://stackoverflow.com/a/9081436/228885
+    return process.env[(process.platform == 'win32')? 'USERPROFILE': 'HOME'];
 }
 
 function listMankees(mankees) {
-    console.log('should list mankees now');
+    var names = Object.keys(mankees);
+
+    if(names.length) console.log(names.join(', '));
+    else console.error('No mankees found! :(');
+}
+
+function executeMankees(mankees, executables, silent) {
+    console.log('should execute mankees now');
 }
