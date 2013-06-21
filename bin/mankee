@@ -47,6 +47,12 @@ function listMankees(mankees) {
 }
 
 function executeMankees(mankees, names, silent) {
+    if(silent) {
+        console.log = noop;
+        console.warn = noop;
+        console.error = noop;
+    }
+
     names.forEach(function(name) {
         if(name in mankees) {
             var mankee = mankees[name];
@@ -57,3 +63,5 @@ function executeMankees(mankees, names, silent) {
         else console.error('Mankee named *' + name + '* was not found!');
     });
 }
+
+function noop() {}
