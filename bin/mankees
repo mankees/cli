@@ -13,7 +13,10 @@ main();
 function main() {
     var mankeeDir = getMankeeDir();
 
-    if(!fs.existsSync(mankeeDir)) return console.error('Create ' + mankeeDir + ' and fill it with joy and scripts that export `execute`!');
+    if(!fs.existsSync(mankeeDir)) {
+        return console.error('Create ' + mankeeDir +
+            ' and fill it with joy and scripts that export `execute`!');
+    }
 
     getMankees(mankeeDir, run);
 }
@@ -24,10 +27,23 @@ function run(err, mankees) {
     program.version(VERSION).
         option('-l --list', 'list').
         option('-s --silent', 'silent').
-        parse(process.argv);
+        on('--help', function() {
+            var name = last(process.argv);
+
+            if(name == '-h' || name == '--help') return;
+            if(name in mankees) {
+             return console.log(mankees[name].help || 'No help for this mankee yet!');
+            }
+
+            console.error('No mankee found! :(');
+        }).parse(process.argv);
 
     if(program.list) listMankees(mankees);
     else executeMankees(mankees, program.args, program.silent);
+}
+
+function last(arr) {
+    return arr[arr.length - 1];
 }
 
 function getMankeeDir() {
