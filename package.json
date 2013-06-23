@@ -5,7 +5,7 @@
   "version": "0.1.1",
   "dependencies": {
     "commander": "1.2.0",
-    "require-dir": "0.1.0"
+    "filewalker": "0.1.1"
   },
   "bin": "./bin/mankees",
   "repository": {

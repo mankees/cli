@@ -4,22 +4,24 @@ var VERSION = require('../package.json').version;
 var fs = require('fs');
 var path = require('path');
 
+var walker = require('filewalker');
 var program = require('commander');
-var requireDir = require('require-dir');
 
 
 main();
 
 function main() {
     var mankeeDir = getMankeeDir();
-    var args, mankees;
 
     if(!fs.existsSync(mankeeDir)) return console.error('Create ' + mankeeDir + ' and fill it with joy and scripts that export `execute`!');
 
-    mankees = requireDir(mankeeDir);
+    getMankees(mankeeDir, run);
+}
 
-    program.
-        version(VERSION).
+function run(err, mankees) {
+    if(err) return console.error(err);
+
+    program.version(VERSION).
         option('-l --list', 'list').
         option('-s --silent', 'silent').
         parse(process.argv);
@@ -35,6 +37,21 @@ function getMankeeDir() {
 function getUserDir() {
     // http://stackoverflow.com/a/9081436/228885
     return process.env[(process.platform == 'win32')? 'USERPROFILE': 'HOME'];
+}
+
+function getMankees(mankeeDir, cb) {
+    var ret = {};
+    var mp;
+
+    walker(mankeeDir).on('dir', function(p) {
+        if(p.split('/').length == 1) {
+            mp = path.join(mankeeDir, p, p);
+
+            if(fs.existsSync(mp + '.js')) ret[p] = require(mp);
+        }
+    }).on('error', cb).on('done', function() {
+        cb(null, ret);
+    }).walk();
 }
 
 function listMankees(mankees) {
