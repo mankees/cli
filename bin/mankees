@@ -32,7 +32,7 @@ function run(err, mankees) {
 
             if(name == '-h' || name == '--help') return;
             if(name in mankees) {
-             return console.log(mankees[name].help || 'No help for this mankee yet!');
+                return console.log(mankees[name].help || 'No help for this mankee yet!');
             }
 
             console.error('No mankee found! :(');
