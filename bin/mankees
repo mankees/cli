@@ -29,10 +29,10 @@ function run(err, mankees) {
     if(err) return console.error(err);
 
     program.version(VERSION).
-        option('--search', 'search for mankees online').
+        option('-s --search', 'search for mankees online').
         option('-i --install', 'install mankee').
         option('-l --list', 'list').
-        option('-s --silent', 'silent').
+        option('--silent', 'silent').
         on('--help', function() {
             var name = last(process.argv);
 
