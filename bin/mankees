@@ -39,7 +39,7 @@ function run(err, mankees) {
         }).parse(process.argv);
 
     if(program.list) listMankees(mankees);
-    else executeMankees(mankees, program.args, program.silent);
+    else executeMankee(mankees, program.args, program.silent);
 }
 
 function last(arr) {
@@ -63,7 +63,11 @@ function getMankees(mankeeDir, cb) {
         if(p.split('/').length == 1) {
             mp = path.join(mankeeDir, p, p);
 
-            if(fs.existsSync(mp + '.js')) ret[p] = require(mp);
+            try {
+                if(fs.existsSync(mp + '.js')) ret[p] = require(mp);
+            } catch(e) {
+                console.warn('Failed loading ´' + p + '´ mankee!');
+            }
         }
     }).on('error', cb).on('done', function() {
         cb(null, ret);
@@ -77,7 +81,7 @@ function listMankees(mankees) {
     else console.error('No mankees found! :(');
 }
 
-function executeMankees(mankees, args, silent) {
+function executeMankee(mankees, args, silent) {
     if(!args.length) return console.log('No mankee selected!');
 
     var name = args.shift();
