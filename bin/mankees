@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 var VERSION = require('../package.json').version;
+var INDEX = 'https://raw.github.com/wiki/bebraw/mankees/Mankees.md';
 
 var fs = require('fs');
 var path = require('path');
 
+var marked = require('marked');
 var walker = require('filewalker');
+var request = require('request');
 var program = require('commander');
 
 
@@ -25,6 +28,7 @@ function run(err, mankees) {
     if(err) return console.error(err);
 
     program.version(VERSION).
+        option('--search', 'search for mankees online').
         option('-l --list', 'list').
         option('-s --silent', 'silent').
         on('--help', function() {
@@ -38,7 +42,8 @@ function run(err, mankees) {
             console.error('No mankee found! :(');
         }).parse(process.argv);
 
-    if(program.list) listMankees(mankees);
+    if(program.search) searchMankees(INDEX);
+    else if(program.list) listMankees(mankees);
     else executeMankee(mankees, program.args, program.silent);
 }
 
@@ -72,6 +77,37 @@ function getMankees(mankeeDir, cb) {
     }).on('error', cb).on('done', function() {
         cb(null, ret);
     }).walk();
+}
+
+function searchMankees(url) {
+    request.get({url: url}, function(err, res, data) {
+        if(err) return console.error(err);
+
+        console.log(parseMankees(data));
+    });
+}
+
+function parseMankees(data) {
+    var lexer = new marked.Lexer();
+    var ret = [];
+    var withinItem = false;
+
+    lexer.lex(data).forEach(function(v) {
+        if(v.type == 'list_item_end') withinItem = false;
+        if(withinItem) parseMankee(v.text);
+        if(v.type == 'list_item_start') withinItem = true;
+    });
+
+    function parseMankee(d) {
+        var parts = d.split('-').map(function(v) {return v.trim()});
+
+        ret.push({
+            name: parts[0],
+            url: parts[1]
+        });
+    }
+
+    return ret;
 }
 
 function listMankees(mankees) {
