@@ -29,6 +29,7 @@ function run(err, mankees) {
 
     program.version(VERSION).
         option('--search', 'search for mankees online').
+        option('-i --install', 'install mankee').
         option('-l --list', 'list').
         option('-s --silent', 'silent').
         on('--help', function() {
@@ -46,6 +47,12 @@ function run(err, mankees) {
         if(err) return console.error(err);
 
         console.log(d);
+    });
+    if(program.install) searchMankees(INDEX, program.args[0], function(err, d) {
+        if(err) return console.error(err);
+        if(d.length > 1) return console.error('Too many matches! Specify mankee by name');
+
+        console.log('should install now');
     });
     else if(program.list) listMankees(mankees);
     else executeMankee(mankees, program.args, program.silent);
