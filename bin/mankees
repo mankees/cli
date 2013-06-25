@@ -1,27 +1,28 @@
 #!/usr/bin/env node
-var VERSION = require('../package.json').version;
-var INDEX = 'https://raw.github.com/wiki/bebraw/mankees/Mankees.md';
-
 var fs = require('fs');
 var path = require('path');
+var exec = require('child_process').exec;
 
 var marked = require('marked');
 var walker = require('filewalker');
 var request = require('request');
 var program = require('commander');
+var Git = require('git-wrapper');
+
+var VERSION = require('../package.json').version;
+var INDEX = 'https://raw.github.com/wiki/bebraw/mankees/Mankees.md';
+var MANKEE_DIR = getMankeeDir();
 
 
 main();
 
 function main() {
-    var mankeeDir = getMankeeDir();
-
-    if(!fs.existsSync(mankeeDir)) {
-        return console.error('Create ' + mankeeDir +
+    if(!fs.existsSync(MANKEE_DIR)) {
+        return console.error('Create ' + MANKEE_DIR +
             ' and fill it with joy and scripts that export `execute`!');
     }
 
-    getMankees(mankeeDir, run);
+    getMankees(MANKEE_DIR, run);
 }
 
 function run(err, mankees) {
@@ -52,10 +53,33 @@ function run(err, mankees) {
         if(err) return console.error(err);
         if(d.length > 1) return console.error('Too many matches! Specify mankee by name');
 
-        console.log('should install now');
+        installMankee(MANKEE_DIR, d);
     });
     else if(program.list) listMankees(mankees);
     else executeMankee(mankees, program.args, program.silent);
+}
+
+function installMankee(dir, repo) {
+    var cwd = process.cwd();
+    var git = new Git();
+
+    process.chdir(dir);
+
+    git.exec('clone', {}, [repo.url, repo.name], function(err, msg) {
+        if(err) return console.error('failed to clone', repo.url, err);
+
+        console.log('Cloned ' + repo.url + ' at ' + dir);
+
+        process.chdir(path.join(dir, repo.name));
+
+        exec('npm install', function(err) {
+            if(err) return console.error('failed to execute `npm install`', err);
+
+            console.log('Installed mankee dependencies locally');
+
+            process.chdir(cwd);
+        })
+    });
 }
 
 function last(arr) {
