@@ -42,7 +42,11 @@ function run(err, mankees) {
             console.error('No mankee found! :(');
         }).parse(process.argv);
 
-    if(program.search) searchMankees(INDEX);
+    if(program.search) searchMankees(INDEX, program.args[0], function(err, d) {
+        if(err) return console.error(err);
+
+        console.log(d);
+    });
     else if(program.list) listMankees(mankees);
     else executeMankee(mankees, program.args, program.silent);
 }
@@ -79,12 +83,26 @@ function getMankees(mankeeDir, cb) {
     }).walk();
 }
 
-function searchMankees(url) {
+function searchMankees(url, query, cb) {
     request.get({url: url}, function(err, res, data) {
-        if(err) return console.error(err);
+        if(err) return cb(err);
 
-        console.log(parseMankees(data));
+        searchMankee(parseMankees(data), query, cb);
     });
+}
+
+function searchMankee(mankees, query, cb) {
+    if(!query) return cb(null, mankees);
+    var ret;
+
+    query = query.trim();
+
+    mankees.forEach(function(v) {
+        if(v.name == query) ret = v;
+    });
+
+    if(ret) cb(null, ret);
+    else cb('No mankee found!');
 }
 
 function parseMankees(data) {
