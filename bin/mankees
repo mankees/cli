@@ -48,7 +48,7 @@ function run(err, mankees) {
 
         console.log(d);
     });
-    if(program.install) searchMankees(INDEX, program.args[0], function(err, d) {
+    else if(program.install) searchMankees(INDEX, program.args[0], function(err, d) {
         if(err) return console.error(err);
         if(d.length > 1) return console.error('Too many matches! Specify mankee by name');
 
@@ -124,7 +124,7 @@ function parseMankees(data) {
     });
 
     function parseMankee(d) {
-        var parts = d.split('-').map(function(v) {return v.trim()});
+        var parts = d.split(' - ');
 
         ret.push({
             name: parts[0],
