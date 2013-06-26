@@ -99,15 +99,15 @@ function getMankees(mankeeDir, cb) {
     var ret = {};
     var mp;
 
-    walker(mankeeDir).on('dir', function(p) {
-        if(p.split('/').length == 1) {
-            mp = path.join(mankeeDir, p, p);
+    walker(mankeeDir, {
+        recursive: false
+    }).on('dir', function(p) {
+        mp = path.join(mankeeDir, p, p);
 
-            try {
-                if(fs.existsSync(mp + '.js')) ret[p] = require(mp);
-            } catch(e) {
-                console.warn('Failed loading ´' + p + '´ mankee!');
-            }
+        try {
+            if(fs.existsSync(mp + '.js')) ret[p] = require(mp);
+        } catch(e) {
+            console.warn('Failed loading ´' + p + '´ mankee!');
         }
     }).on('error', cb).on('done', function() {
         cb(null, ret);
