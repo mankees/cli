@@ -180,8 +180,7 @@ function executeMankee(mankees, args, silent) {
     if(name in mankees) {
         var mankee = mankees[name];
 
-        if(mankee.execute) mankee.execute.apply(undefined, args);
-        else console.error('*' + name + '* mankee is missing `execute`!');
+        mankee.apply(undefined, args);
     }
     else console.error('*' + name + '* mankee was not found!');
 }
