@@ -32,7 +32,6 @@ function run(err, mankees) {
         option('-s --search', 'search for mankees online').
         option('-i --install', 'install mankee').
         option('-l --list', 'list').
-        option('--silent', 'silent').
         on('--help', function() {
             var name = last(process.argv);
 
@@ -56,7 +55,7 @@ function run(err, mankees) {
         installMankee(MANKEE_DIR, d);
     });
     else if(program.list) listMankees(mankees);
-    else executeMankee(mankees, program.args, program.silent);
+    else executeMankee(mankees, program.args);
 }
 
 function installMankee(dir, repo) {
@@ -175,16 +174,10 @@ function listMankees(mankees) {
     else console.error('No mankees found! :(');
 }
 
-function executeMankee(mankees, args, silent) {
+function executeMankee(mankees, args) {
     if(!args.length) return console.log('No mankee selected!');
 
     var name = args.shift();
-
-    if(silent) {
-        console.log = noop;
-        console.warn = noop;
-        console.error = noop;
-    }
 
     if(name in mankees) {
         var mankee = mankees[name];
@@ -193,5 +186,3 @@ function executeMankee(mankees, args, silent) {
     }
     else console.error('*' + name + '* mankee was not found!');
 }
-
-function noop() {}
