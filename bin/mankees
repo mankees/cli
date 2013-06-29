@@ -10,7 +10,7 @@ var program = require('commander');
 var Git = require('git-wrapper');
 
 var VERSION = require('../package.json').version;
-var INDEX = 'https://raw.github.com/wiki/bebraw/mankees/Mankees.md';
+var INDEX = 'https://raw.github.com/wiki/mankees/cli/Mankees.md';
 var MANKEE_DIR = getMankeeDir();
 
 
