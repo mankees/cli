@@ -102,18 +102,14 @@ function getMankees(mankeeDir, cb) {
         recursive: false
     }).on('dir', function(p) {
         root = path.join(mankeeDir, p);
-        mp = path.join(root, p);
 
         try {
-            if(fs.existsSync(mp + '.js')) {
-                ret[p] = require(mp);
-                pp = path.join(root, 'package.json');
+            ret[p] = require(root);
+            pp = path.join(root, 'package.json');
 
-                if(!ret[p].help && fs.existsSync(pp)) {
-                    ret[p].help = require(pp).description;
-                }
+            if(!ret[p].help && fs.existsSync(pp)) {
+                ret[p].help = require(pp).description;
             }
-            else console.warn('Missing implementation for ' + p + '!');
         } catch(e) {
             console.warn('Failed loading ´' + p + '´ mankee!');
         }
