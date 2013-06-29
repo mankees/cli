@@ -8,7 +8,7 @@ Install the utility via NPM globally (ie. `npm install mankees -g`). `mankees -s
 
 ## Authoring
 
-`mankees` uses a wiki based [plugin index](https://github.com/bebraw/mankees/wiki/Mankees). Simply list your plugin there and it will be available for consumption.
+`mankees` uses a wiki based [plugin index](https://github.com/mankees/cli/wiki/Mankees). Simply list your plugin there and it will be available for consumption.
 
 ## License
 
