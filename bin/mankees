@@ -128,6 +128,9 @@ function getMankees(mankeeDir, cb) {
     }).on('dir', function(p) {
         root = path.join(mankeeDir, p);
 
+        // TODO: figure out why filewalker may walk recursively
+        if(p.split('/').length > 1) return;
+
         try {
             ret[p] = require(root);
             pp = path.join(root, 'package.json');
