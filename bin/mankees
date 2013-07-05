@@ -60,24 +60,49 @@ function run(err, mankees) {
 
 function installMankee(dir, repo) {
     var cwd = process.cwd();
-    var git = new Git();
+    var p = path.join(dir, repo.name);
 
     process.chdir(dir);
 
+    if(fs.existsSync(p)) pullRepo(p, done);
+    else cloneRepo(dir, repo, done);
+
+    function done(err) {
+        if(err) return console.error(err);
+
+        console.log('Installed mankee dependencies locally');
+
+        process.chdir(cwd);
+    }
+}
+
+function pullRepo(path, cb) {
+    var git = new Git();
+
+    process.chdir(path);
+
+    git.exec('pull', {}, [], function(err, msg) {
+        if(err) return cb('Failed to pull');
+
+        cb();
+    });
+}
+
+function cloneRepo(dir, repo, cb) {
+    var git = new Git();
+
     git.exec('clone', {}, [repo.url, repo.name], function(err, msg) {
-        if(err) return console.error('failed to clone', repo.url, err);
+        if(err) return cb('Failed to clone ' + repo.url);
 
         console.log('Cloned ' + repo.url + ' at ' + dir);
 
         process.chdir(path.join(dir, repo.name));
 
         exec('npm install', function(err) {
-            if(err) return console.error('failed to execute `npm install`', err);
+            if(err) return cb('Failed to execute `npm install`');
 
-            console.log('Installed mankee dependencies locally');
-
-            process.chdir(cwd);
-        })
+            cb();
+        });
     });
 }
 
