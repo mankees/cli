@@ -6,9 +6,10 @@
   "dependencies": {
     "commander": "1.2.0",
     "filewalker": "0.1.2",
-    "marked": "0.2.9",
     "request": "2.21.0",
-    "git-wrapper": "0.1.1"
+    "git-wrapper": "0.1.1",
+    "async": "0.2.9",
+    "trimmer": "0.0.3"
   },
   "bin": "./bin/mankees",
   "repository": {

@@ -3,14 +3,14 @@ var fs = require('fs');
 var path = require('path');
 var exec = require('child_process').exec;
 
-var marked = require('marked');
+var async = require('async');
 var walker = require('filewalker');
 var request = require('request');
 var program = require('commander');
+var trim = require('trimmer');
 var Git = require('git-wrapper');
 
 var VERSION = require('../package.json').version;
-var INDEX = 'https://raw.github.com/wiki/mankees/cli/Mankees.md';
 var MANKEE_DIR = getMankeeDir();
 
 
@@ -43,12 +43,12 @@ function run(err, mankees) {
             console.error('No mankee found! :(');
         }).parse(process.argv);
 
-    if(program.search) searchMankees(INDEX, program.args[0], function(err, d) {
+    if(program.search) searchMankees(program.args[0], function(err, d) {
         if(err) return console.error(err);
 
         console.log(d);
     });
-    else if(program.install) searchMankees(INDEX, program.args[0], function(err, d) {
+    else if(program.install) searchMankees(program.args[0], function(err, d) {
         if(err) return console.error(err);
         if(d.length > 1) return console.error('Too many matches! Specify mankee by name');
 
@@ -146,12 +146,23 @@ function getMankees(mankeeDir, cb) {
     }).walk();
 }
 
-function searchMankees(url, query, cb) {
-    request.get({url: url}, function(err, res, data) {
+function searchMankees(query, cb) {
+    var url = getNpmUrl('mankees');
+
+    request.get({url: url, json: true}, function(err, res, data) {
         if(err) return cb(err);
 
-        searchMankee(parseMankees(data), query, cb);
+        parseMankees(data, function(err, mankees) {
+            if(err) return cb(err);
+
+            searchMankee(mankees, query, cb);
+        });
     });
+}
+
+function getNpmUrl(name) {
+    return 'http://registry.npmjs.org/-/_view/byKeyword?startkey=["' +
+        name + '"]&endkey=["' + name + '",{}]&group_level=2';
 }
 
 function searchMankee(mankees, query, cb) {
@@ -168,27 +179,21 @@ function searchMankee(mankees, query, cb) {
     else cb('No mankee found!');
 }
 
-function parseMankees(data) {
-    var lexer = new marked.Lexer();
-    var ret = [];
-    var withinItem = false;
-
-    lexer.lex(data).forEach(function(v) {
-        if(v.type == 'list_item_end') withinItem = false;
-        if(withinItem) parseMankee(v.text);
-        if(v.type == 'list_item_start') withinItem = true;
+function parseMankees(data, cb) {
+    var urls = data.rows.map(function(v) {
+        return 'http://registry.npmjs.org/' + v.key[1] + '/latest';
     });
 
-    function parseMankee(d) {
-        var parts = d.split(' - ');
+    async.map(urls, function(url, cb) {
+        request.get({url: url, json: true}, function(err, res, data) {
+            if(err) return cb(err);
 
-        ret.push({
-            name: parts[0],
-            url: parts[1]
+            cb(null, {
+                name: trim.left(data.name, 'mankees-'),
+                url: data.repository.url
+            });
         });
-    }
-
-    return ret;
+    }, cb);
 }
 
 function listMankees(mankees) {

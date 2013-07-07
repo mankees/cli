@@ -8,7 +8,10 @@ Install the utility via NPM globally (ie. `npm install mankees -g`). `mankees -s
 
 ## Authoring
 
-`mankees` uses a wiki based [plugin index](https://github.com/mankees/cli/wiki/Mankees). Simply list your plugin there and it will be available for consumption.
+`mankees` uses NPM as its plugin registry. Simply publish your plugin there. In order to make it discoverable, perform the following steps:
+
+1. Add `mankees` keyword to `package.json` keywords (ie. `keywords: ["mankees"]`)
+2. Prefix the plugin with word `mankees-`. This is a convention that allows us avoid polluting NPM too much. The actual plugin name will be the remainder (ie. for `mankees-init` it is `init`).
 
 ## License
 
