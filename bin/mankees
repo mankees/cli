@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 var fs = require('fs');
 var path = require('path');
 var exec = require('child_process').exec;
@@ -26,7 +27,9 @@ function main() {
 }
 
 function run(err, mankees) {
-    if(err) return console.error(err);
+    if(err) {
+        return console.error(err);
+    }
 
     program.version(VERSION).
         option('-s --search', 'search for mankees online').
@@ -35,7 +38,9 @@ function run(err, mankees) {
         on('--help', function() {
             var name = last(process.argv);
 
-            if(name == '-h' || name == '--help') return;
+            if(name === '-h' || name === '--help') {
+                return;
+            }
             if(name in mankees) {
                 return console.log(mankees[name].help || 'No help for this mankee yet!');
             }
@@ -43,19 +48,33 @@ function run(err, mankees) {
             console.error('No mankee found! :(');
         }).parse(process.argv);
 
-    if(program.search) searchMankees(program.args[0], function(err, d) {
-        if(err) return console.error(err);
+    if(program.search) {
+        searchMankees(program.args[0], function(err, d) {
+            if(err) {
+                return console.error(err);
+            }
 
-        console.log(d);
-    });
-    else if(program.install) searchMankees(program.args[0], function(err, d) {
-        if(err) return console.error(err);
-        if(d.length > 1) return console.error('Too many matches! Specify mankee by name');
+            console.log(d);
+        });
+    }
+    else if(program.install) {
+        searchMankees(program.args[0], function(err, d) {
+            if(err) {
+                return console.error(err);
+            }
+            if(d.length > 1) {
+                return console.error('Too many matches! Specify mankee by name');
+            }
 
-        installMankee(MANKEE_DIR, d);
-    });
-    else if(program.list) listMankees(mankees);
-    else executeMankee(mankees, program.args);
+            installMankee(MANKEE_DIR, d);
+        });
+    }
+    else if(program.list) {
+        listMankees(mankees);
+    }
+    else {
+        executeMankee(mankees, program.args);
+    }
 }
 
 function installMankee(dir, repo) {
@@ -64,11 +83,17 @@ function installMankee(dir, repo) {
 
     process.chdir(dir);
 
-    if(fs.existsSync(p)) pullRepo(p, done);
-    else cloneRepo(dir, repo, done);
+    if(fs.existsSync(p)) {
+        pullRepo(p, done);
+    }
+    else {
+        cloneRepo(dir, repo, done);
+    }
 
     function done(err) {
-        if(err) return console.error(err);
+        if(err) {
+            return console.error(err);
+        }
 
         console.log('Installed mankee dependencies locally');
 
@@ -83,7 +108,9 @@ function pullRepo(path, cb) {
 
     git.exec('pull', {}, [], function(err, msg) {
         // XXX: this can fail if repo has local changes!
-        if(err) return cb('Failed to pull. ' +  msg);
+        if(err) {
+            return cb('Failed to pull. ' +  msg);
+        }
 
         cb();
     });
@@ -93,14 +120,18 @@ function cloneRepo(dir, repo, cb) {
     var git = new Git();
 
     git.exec('clone', {}, [repo.url, repo.name], function(err, msg) {
-        if(err) return cb('Failed to clone ' + repo.url);
+        if(err) {
+            return cb('Failed to clone ' + repo.url);
+        }
 
         console.log('Cloned ' + repo.url + ' at ' + dir);
 
         process.chdir(path.join(dir, repo.name));
 
         exec('npm install', function(err) {
-            if(err) return cb('Failed to execute `npm install`');
+            if(err) {
+                return cb('Failed to execute `npm install`');
+            }
 
             cb();
         });
@@ -117,12 +148,12 @@ function getMankeeDir() {
 
 function getUserDir() {
     // http://stackoverflow.com/a/9081436/228885
-    return process.env[(process.platform == 'win32')? 'USERPROFILE': 'HOME'];
+    return process.env[(process.platform === 'win32')? 'USERPROFILE': 'HOME'];
 }
 
 function getMankees(mankeeDir, cb) {
     var ret = {};
-    var root, mp, pp;
+    var root, pp;
 
     walker(mankeeDir, {
         recursive: false
@@ -130,7 +161,9 @@ function getMankees(mankeeDir, cb) {
         root = path.join(mankeeDir, p);
 
         // TODO: figure out why filewalker may walk recursively
-        if(p.split('/').length > 1) return;
+        if(p.split('/').length > 1) {
+            return;
+        }
 
         try {
             ret[p] = require(root);
@@ -151,10 +184,14 @@ function searchMankees(query, cb) {
     var url = getNpmUrl('mankees');
 
     request.get({url: url, json: true}, function(err, res, data) {
-        if(err) return cb(err);
+        if(err) {
+            return cb(err);
+        }
 
         parseMankees(data, function(err, mankees) {
-            if(err) return cb(err);
+            if(err) {
+                return cb(err);
+            }
 
             searchMankee(mankees, query, cb);
         });
@@ -167,17 +204,25 @@ function getNpmUrl(name) {
 }
 
 function searchMankee(mankees, query, cb) {
-    if(!query) return cb(null, mankees);
+    if(!query) {
+        return cb(null, mankees);
+    }
     var ret;
 
     query = query.trim();
 
     mankees.forEach(function(v) {
-        if(v.name == query) ret = v;
+        if(v.name === query) {
+            ret = v;
+        }
     });
 
-    if(ret) cb(null, ret);
-    else cb('No mankee found!');
+    if(ret) {
+        cb(null, ret);
+    }
+    else {
+        cb('No mankee found!');
+    }
 }
 
 function parseMankees(data, cb) {
@@ -187,7 +232,9 @@ function parseMankees(data, cb) {
 
     async.map(urls, function(url, cb) {
         request.get({url: url, json: true}, function(err, res, data) {
-            if(err) return cb(err);
+            if(err) {
+                return cb(err);
+            }
 
             cb(null, {
                 name: trim.left(data.name, 'mankees-'),
@@ -200,12 +247,18 @@ function parseMankees(data, cb) {
 function listMankees(mankees) {
     var names = Object.keys(mankees);
 
-    if(names.length) console.log(names.join(', '));
-    else console.error('No mankees found! :(');
+    if(names.length) {
+        console.log(names.join(', '));
+    }
+    else {
+        console.error('No mankees found! :(');
+    }
 }
 
 function executeMankee(mankees, args) {
-    if(!args.length) return console.log('No mankee selected!');
+    if(!args.length) {
+        return console.log('No mankee selected!');
+    }
 
     var name = args.shift();
 
@@ -214,5 +267,7 @@ function executeMankee(mankees, args) {
 
         mankee.apply(undefined, args);
     }
-    else console.error('*' + name + '* mankee was not found!');
+    else {
+        console.error('*' + name + '* mankee was not found!');
+    }
 }
