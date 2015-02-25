@@ -82,6 +82,7 @@ function pullRepo(path, cb) {
     process.chdir(path);
 
     git.exec('pull', {}, [], function(err, msg) {
+        // XXX: this can fail if repo has local changes!
         if(err) return cb('Failed to pull. ' +  msg);
 
         cb();
