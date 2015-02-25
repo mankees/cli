@@ -82,7 +82,7 @@ function pullRepo(path, cb) {
     process.chdir(path);
 
     git.exec('pull', {}, [], function(err, msg) {
-        if(err) return cb('Failed to pull');
+        if(err) return cb('Failed to pull. ' +  msg);
 
         cb();
     });
